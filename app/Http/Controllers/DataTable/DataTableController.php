@@ -25,20 +25,20 @@ abstract class DataTableController extends Controller
 
     abstract public function builder();
 
-    public function index()
+    public function index(Request $request)
     {
         return response()->json([
             'data' => [
                 'table' => $this->builder->getModel()->getTable(),
                 'displayable' => array_values($this->getDisplayableColumns()),
-                'records' => $this->getRecords(),
+                'records' => $this->getRecords($request),
             ]
         ]);
     }
 
-    protected function getRecords()
+    protected function getRecords(Request $request)
     {
-        return $this->builder->get($this->getDisplayableColumns());
+        return $this->builder->limit($request->limit)->get($this->getDisplayableColumns());
     }
 
     public function getDisplayableColumns()
