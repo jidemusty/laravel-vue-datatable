@@ -13,4 +13,18 @@ class PlanController extends DataTableController
     {
         return Plan::query();
     }
+
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'braintree_id' => 'required',
+            'price' => 'required'
+        ]);
+
+        if (!$this->allowCreation) {
+            return;
+        }
+
+        $this->builder->create($request->only($this->getUpdatableColumns()));
+    }
 }

@@ -43412,6 +43412,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
 
 
 
@@ -43513,10 +43516,26 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                     _this3.editing.form = {};
                 });
             }).catch(function (error) {
-                _this3.editing.errors = error.response.data.errors;
+                if (error.response.status === 422) {
+                    _this3.editing.errors = error.response.data.errors;
+                }
             });
         },
-        store: function store() {}
+        store: function store() {
+            var _this4 = this;
+
+            axios.post('' + this.endpoint, this.creating.form).then(function () {
+                _this4.getRecords().then(function () {
+                    _this4.creating.active = false;
+                    _this4.creating.form = {};
+                    _this4.creating.errors = [];
+                });
+            }).catch(function (error) {
+                if (error.response.status === 422) {
+                    _this4.creating.errors = error.response.data.errors;
+                }
+            });
+        }
     },
 
     mounted: function mounted() {
@@ -44004,44 +44023,59 @@ var render = function() {
               },
               [
                 _vm._l(_vm.response.updatable, function(column) {
-                  return _c("div", { staticClass: "form-group" }, [
-                    _c(
-                      "label",
-                      {
-                        staticClass: "col-md-3 control-label",
-                        attrs: { for: column }
-                      },
-                      [_vm._v(_vm._s(column))]
-                    ),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "col-md-6" }, [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.creating.form[column],
-                            expression: "creating.form[column]"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { type: "text", id: column },
-                        domProps: { value: _vm.creating.form[column] },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
+                  return _c(
+                    "div",
+                    {
+                      staticClass: "form-group",
+                      class: { "has-error": _vm.creating.errors[column] }
+                    },
+                    [
+                      _c(
+                        "label",
+                        {
+                          staticClass: "col-md-3 control-label",
+                          attrs: { for: column }
+                        },
+                        [_vm._v(_vm._s(column))]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-md-6" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.creating.form[column],
+                              expression: "creating.form[column]"
                             }
-                            _vm.$set(
-                              _vm.creating.form,
-                              column,
-                              $event.target.value
-                            )
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "text", id: column },
+                          domProps: { value: _vm.creating.form[column] },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.creating.form,
+                                column,
+                                $event.target.value
+                              )
+                            }
                           }
-                        }
-                      })
-                    ])
-                  ])
+                        }),
+                        _vm._v(" "),
+                        _vm.creating.errors[column]
+                          ? _c("span", { staticClass: "help-block" }, [
+                              _c("strong", [
+                                _vm._v(_vm._s(_vm.creating.errors[column][0]))
+                              ])
+                            ])
+                          : _vm._e()
+                      ])
+                    ]
+                  )
                 }),
                 _vm._v(" "),
                 _vm._m(0, false, false)
