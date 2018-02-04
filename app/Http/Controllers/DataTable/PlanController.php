@@ -27,4 +27,13 @@ class PlanController extends DataTableController
 
         $this->builder->create($request->only($this->getUpdatableColumns()));
     }
+
+    public function getCustomColumnNames()
+    {
+        return [
+            'braintree_id' => 'Braintree ID',
+            'price' => 'Price',
+            'active' => 'Active'
+        ];
+    }
 }

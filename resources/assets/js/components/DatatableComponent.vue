@@ -12,7 +12,7 @@
             <div class="well" v-if="creating.active">
                 <form action="#" class="form-horizontal" @submit.prevent="store">
                     <div class="form-group" v-for="column in response.updatable" :class="{ 'has-error': creating.errors[column] }">
-                        <label class="col-md-3 control-label" :for="column">{{ column }}</label>
+                        <label class="col-md-3 control-label" :for="column">{{ response.custom_columns[column] || column }}</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" :id="column" v-model="creating.form[column]" />
                             <span class="help-block" v-if="creating.errors[column]">
@@ -76,7 +76,7 @@
                     <thead>
                         <tr>
                             <th v-for="column in response.displayable">
-                                <span class="sortable" @click="sortBy(column)">{{ column }}</span>
+                                <span class="sortable" @click="sortBy(column)">{{ response.custom_columns[column] || column }}</span>
 
                                 <div
                                         class="arrow"

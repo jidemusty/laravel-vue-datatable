@@ -37,4 +37,12 @@ class UserController extends DataTableController
 
         $this->builder->find($id)->update($request->only($this->getUpdatableColumns()));
     }
+
+    public function getCustomColumnNames()
+    {
+        return [
+            'name' => 'Fullname',
+            'email' => 'Email address',
+        ];
+    }
 }
