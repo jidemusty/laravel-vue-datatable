@@ -38,8 +38,24 @@
                     </thead>
                     <tbody>
                         <tr v-for="record in filteredRecords">
-                            <td v-for="columnValue, column in record">{{ columnValue }}</td>
-                            <td></td>
+                            <td v-for="columnValue, column in record">
+                                <template v-if="editing.id === record.id && isUpdatable(column)">
+                                    <div form-group>
+                                        <input type="text" class="form-control" v-model="editing.form[column]" :value="columnValue" />
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    {{ columnValue }}
+                                </template>
+                            </td>
+                            <td>
+                                <a href="#" @click.prevent="edit(record)" v-if="editing.id !== record.id">Edit</a>
+
+                                <template v-if="editing.id === record.id">
+                                    <a href="#" @click.prevent="update">Save</a><br/>
+                                    <a href="#" @click.prevent="editing.id = null">Cancel</a>
+                                </template>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -67,7 +83,12 @@
                     order: 'asc'
                 },
                 quickSearchQuery: '',
-                limit: 50
+                limit: 50,
+                editing: {
+                    id: null,
+                    form: {},
+                    errors: []
+                }
             }
         },
 
@@ -112,6 +133,14 @@
             sortBy (column) {
                 this.sort.key = column
                 this.sort.order = this.sort.order === 'asc' ? 'desc' : 'asc'
+            },
+            edit (record) {
+                this.editing.errors = []
+                this.editing.id = record.id
+                this.editing.form = _.pick(record, this.response.updatable)
+            },
+            isUpdatable (column) {
+                return this.response.updatable.includes(column)
             }
         },
 
