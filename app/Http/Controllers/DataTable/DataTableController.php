@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\Builder;
 
 abstract class DataTableController extends Controller
@@ -65,7 +66,11 @@ abstract class DataTableController extends Controller
             $builder = $this->buildSearch($builder, $request);
         }
 
-        return $this->builder->limit($request->limit)->orderBy('id', 'asc')->get($this->getDisplayableColumns());
+        try {
+            return $this->builder->limit($request->limit)->orderBy('id', 'asc')->get($this->getDisplayableColumns());
+        } catch (QueryException $e) {
+            return [];
+        }
     }
 
     public function getDisplayableColumns()
@@ -95,11 +100,38 @@ abstract class DataTableController extends Controller
 
     protected function buildSearch(Builder $builder, Request $request)
     {
-        return $builder;
+        $queryParts = $this->resolveQueryParts($request->operator, $request->value);
+
+        return $this->builder->where($request->column, $queryParts['operator'], $queryParts['value']);
     }
 
-    protected function resolveQueryParts()
+    protected function resolveQueryParts($operator, $value)
     {
-
+        return array_get([
+            'equals' => [
+                'operator' => '=',
+                'value' => $value
+            ],
+            'contains' => [
+                'operator' => 'LIKE',
+                'value' => "%{$value}%"
+            ],
+            'starts_with' => [
+                'operator' => 'LIKE',
+                'value' => "{$value}%"
+            ],
+            'ends_with' => [
+                'operator' => 'LIKE',
+                'value' => "%{$value}"
+            ],
+            'greater_than' => [
+                'operator' => '>',
+                'value' => $value
+            ],
+            'less_than' => [
+                'operator' => '<',
+                'value' => $value
+            ]
+        ], $operator);
     }
 }
