@@ -5,8 +5,8 @@ namespace App\Http\Controllers\DataTable;
 use Exception;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 abstract class DataTableController extends Controller
 {
