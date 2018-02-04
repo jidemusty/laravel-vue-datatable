@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 abstract class DataTableController extends Controller
 {
+    protected $allowCreation = true;
+
     protected $builder;
 
     public function __construct()
@@ -33,6 +35,9 @@ abstract class DataTableController extends Controller
                 'displayable' => array_values($this->getDisplayableColumns()),
                 'updatable' => array_values($this->getUpdatableColumns()),
                 'records' => $this->getRecords($request),
+                'allow' =>[
+                    'creation' => $this->allowCreation
+                ]
             ]
         ]);
     }
@@ -44,6 +49,12 @@ abstract class DataTableController extends Controller
 
     protected function getRecords(Request $request)
     {
+        $builder = $this->builder;
+
+        if ($this->hasSearchQuery($request)) {
+            $builder = $this->buildSearch($builder, $request);
+        }
+
         return $this->builder->limit($request->limit)->orderBy('id', 'asc')->get($this->getDisplayableColumns());
     }
 
@@ -60,5 +71,20 @@ abstract class DataTableController extends Controller
     protected function getDatabaseColumnNames()
     {
         return Schema::getColumnListing($this->builder->getModel()->getTable());
+    }
+
+    protected function hasSearchQuery(Request $request)
+    {
+        return count(array_filter($request->only(['column', 'operator', 'value']))) === 3;
+    }
+
+    protected function buildSearch(Builder $builder, Request $request)
+    {
+        return $builder;
+    }
+
+    protected function resolveQueryParts()
+    {
+
     }
 }
