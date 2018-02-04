@@ -37,9 +37,14 @@ abstract class DataTableController extends Controller
         ]);
     }
 
+    public function update($id, Request $request)
+    {
+        $this->builder->find($id)->update($request->only($this->getUpdatableColumns()));
+    }
+
     protected function getRecords(Request $request)
     {
-        return $this->builder->limit($request->limit)->get($this->getDisplayableColumns());
+        return $this->builder->limit($request->limit)->orderBy('id', 'asc')->get($this->getDisplayableColumns());
     }
 
     public function getDisplayableColumns()

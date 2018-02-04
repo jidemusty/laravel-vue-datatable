@@ -40,8 +40,11 @@
                         <tr v-for="record in filteredRecords">
                             <td v-for="columnValue, column in record">
                                 <template v-if="editing.id === record.id && isUpdatable(column)">
-                                    <div form-group>
+                                    <div form-group :class="{ 'has-error': editing.errors[column] }">
                                         <input type="text" class="form-control" v-model="editing.form[column]" :value="columnValue" />
+                                        <span class="help-block" v-if="editing.errors[column]">
+                                            <strong>{{ editing.errors[column][0] }}</strong>
+                                        </span>
                                     </div>
                                 </template>
                                 <template v-else>
@@ -141,6 +144,17 @@
             },
             isUpdatable (column) {
                 return this.response.updatable.includes(column)
+            },
+            update () {
+                axios.patch(`${this.endpoint}/${this.editing.id}`, this.editing.form)
+                    .then(() => {
+                        this.getRecords().then(() => {
+                            this.editing.id = null
+                            this.editing.form = {}
+                        })
+                    }).catch((error) => {
+                        this.editing.errors = error.response.data.errors
+                })
             }
         },
 
